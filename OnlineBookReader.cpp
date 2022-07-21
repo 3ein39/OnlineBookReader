@@ -1,6 +1,155 @@
 #include<iostream>
 #include <map>
+#include <vector>
 using namespace std;
+
+class Book {
+private:
+    int isbn{};
+    string title;
+    string author;
+    int nPages{};
+    vector<string> content;
+
+    public:
+    // Default constructors
+    Book() : isbn(0),nPages(0) {}
+
+    Book(int isbn, string& title, string& author, int nPages) {
+        setIsbn(isbn), setTitle(title), setAuthor(author), setnPages(nPages);
+    }
+    // setters and getters
+    void setIsbn(const int isbn) {
+        this->isbn = isbn;
+    }
+    const int& getIsbn() const {
+        return isbn;
+    }
+    void setTitle(const string& title) {
+        this->title = title;
+    }
+    const string& getTitle() const {
+        return title;
+    }
+    void setAuthor(const string& author) {
+        this->author = author;
+    }
+    const string& getAuthor() const {
+        return author;
+    }
+    void setnPages(const int nPages) {
+        this->nPages = nPages;
+    }
+    const int& getnPages() const {
+        return nPages;
+    }
+    void setContent(vector<string>& content) {
+        this->content = content;
+    }
+    const vector<string>& getContent() {
+        return content;
+    }
+
+};
+
+class BooksManager {
+private:
+    vector<Book> books;
+public:
+    // Default constructors with fake database
+    BooksManager() {
+        vector<string> v(5);
+        v[0] = "Chapter 1";
+        v[1] = "Chapter 2";
+        v[2] = "Chapter 3";
+        v[3] = "Chapter 4";
+        v[4] = "Chapter 5";
+        Book a;
+        a.setTitle("The Lord of the Rings");
+        a.setAuthor("J.R.R. Tolkien");
+        a.setnPages(5);
+        a.setIsbn(34524);
+        a.setContent(v);
+        books.push_back(a);
+        Book b;
+        b.setTitle("The Hobbit");
+        b.setAuthor("J.R.R. Tolkien");
+        b.setnPages(5);
+        b.setIsbn(34525);
+        b.setContent(v);
+        books.push_back(b);
+    }
+    // setters and getters
+    const vector<Book>& getBooks() const {
+        return books;
+    }
+    // add book to the vector
+    void addBook() {
+        cout << "Enter the ISBN: ";
+        int isbn;
+        cin >> isbn;
+        cout << "Enter the title: ";
+        string title;
+        cin >> title;
+        cout << "Enter the author: ";
+        string author;
+        cin >> author;
+        cout << "Enter the number of pages: ";
+        int nPages;
+        cin >> nPages;
+        vector<string> v(nPages);
+        for (int i = 0; i < nPages; ++i) {
+            cout << "Enter the content of chapter " << i + 1 << ": ";
+            string content;
+            cin >> content;
+            v[i] = content;
+        }
+        Book a;
+        a.setTitle(title);
+        a.setAuthor(author);
+        a.setnPages(nPages);
+        a.setIsbn(isbn);
+        a.setContent(v);
+        books.push_back(a);
+    }
+    /*
+     * Searching and removing functions will be in use
+     * ... but in the next version :)
+     */
+
+    // remove book from the vector
+    void removeBook(const int isbn) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books[i].getIsbn() == isbn) {
+                books.erase(books.begin() + i);
+            }
+        }
+    }
+    // search book by isbn
+    const Book& searchBookByIsbn(const int isbn) const {
+        for (int i = 0; i < books.size(); i++) {
+            if (books[i].getIsbn() == isbn) {
+                return books[i];
+            }
+        }
+    }
+    // search book by title
+    const Book& searchBookByTitle(const string& title) const {
+        for (int i = 0; i < books.size(); i++) {
+            if (books[i].getTitle() == title) {
+                return books[i];
+            }
+        }
+    }
+    // search book by author
+    const Book& searchBookByAuthor(const string& author) const {
+        for (int i = 0; i < books.size(); i++) {
+            if (books[i].getAuthor() == author) {
+                return books[i];
+            }
+        }
+    }
+};
 
 class Admin {
 private:
@@ -57,6 +206,7 @@ class AdminsManager {
 private:
     map<string, Admin> username_adminObj_map;
     Admin current_admin;
+    BooksManager booksManager;
 public:
     // Default constructor creates admin for simplicity
     AdminsManager() {
@@ -82,15 +232,17 @@ public:
 
     void accessSystem() {
         while (true) {
-            int choice = menu();
+            int choice = adminMenu();
             if (choice == 1)
                 current_admin.printInfo();
+            else if (choice == 2)
+                booksManager.addBook();
             else if (choice == 3)
                 break;
         }
     }
 
-    int menu() {
+    int adminMenu() {
         int choice = -1;
         while (choice == -1) {
             cout << "\nHello " << current_admin.getName() << " | Admin View" << endl;
