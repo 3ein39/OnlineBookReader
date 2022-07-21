@@ -1,4 +1,5 @@
 #include<iostream>
+#include <map>
 using namespace std;
 
 class Admin {
@@ -13,10 +14,10 @@ public:
     Admin() : Admin("", "", "", "") {}
 
     Admin(const string& name, const string& password, const string& email, const string& user_name) {
-        this->name = name;
-        this->password = password;
-        this->email = email;
-        this->user_name = user_name;
+        setName(name);
+        setPassword(password);
+        setEmail(email);
+        setUserName(user_name);
     }
 
     void setName(const string& name) {
@@ -42,6 +43,27 @@ public:
     }
     const string& getUserName() const {
         return user_name;
+    }
+};
+
+class AdminsManager {
+private:
+    map<string, Admin> username_adminObj_map;
+
+public:
+    // Default constructor creates admin for simplicity
+    AdminsManager() {
+        string name = "Admin", password = "123", email = "admin@mail", user_name = "admin";
+        Admin admin(name, password, email, user_name);
+        username_adminObj_map[user_name] = admin;
+    }
+
+    const Admin& getAdmin(const string& user_name) {
+        return username_adminObj_map.at(user_name);
+    }
+
+    bool isAdminExist(const string& user_name) {
+        return username_adminObj_map.find(user_name) != username_adminObj_map.end();
     }
 };
 
