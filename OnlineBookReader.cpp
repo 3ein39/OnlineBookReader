@@ -53,6 +53,10 @@ private:
 public:
     // Default constructor creates admin for simplicity
     AdminsManager() {
+        // we could have a separate file to read from and store data
+        // but for simplicity we will use a single admin object
+        // also it is not a good idea to store password in plain text
+        // but anyway, the purpose of this project is to enhance designing skills
         string name = "Admin", password = "123", email = "admin@mail", user_name = "admin";
         Admin admin(name, password, email, user_name);
         username_adminObj_map[user_name] = admin;
