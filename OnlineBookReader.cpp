@@ -15,7 +15,7 @@ private:
     // Default constructors
     Book() : isbn(0),nPages(0) {}
 
-    Book(int isbn, string& title, string& author, int nPages) {
+    Book(const int isbn,const string& title,const string& author,const int nPages) {
         setIsbn(isbn), setTitle(title), setAuthor(author), setnPages(nPages);
     }
     // setters and getters
