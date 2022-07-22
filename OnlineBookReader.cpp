@@ -51,74 +51,6 @@ public:
     }
 };
 
-class UsersManager {
-private:
-    map<string, User> userName_userObj_map;
-    User current_user;
-
-public:
-    // Default constructors with fake users for testing
-    UsersManager() {
-        userName_userObj_map["hany"] = User("Hany", "123", "test@mail", "hany");
-    }
-    // setter and getters
-    void setCurrentUser(const string& userName) {
-        current_user = userName_userObj_map[userName];
-    }
-    const User& getCurrentUser() const {
-        return current_user;
-    }
-    // return user by userName
-    const User& getUser(const string& userName) const {
-        return userName_userObj_map.at(userName);
-    }
-    // add user to the map
-    void addUser(const User& user) {
-        userName_userObj_map[user.getUserName()] = user;
-    }
-    // check if the user name is already exist in the map
-    bool isUserNameExist(const string& userName) {
-        return userName_userObj_map.find(userName) != userName_userObj_map.end();
-    }
-    // check if the user name and password are correct
-    bool isUserNameAndPasswordCorrect(const string& userName, const string& password) {
-        if (isUserNameExist(userName)) {
-            return userName_userObj_map[userName].getPassword() == password;
-        }
-        return false;
-    }
-    void accessSystem() {
-        while (true) {
-            int choice = userMenu();
-            if (choice == 1)
-                current_user.printInfo();
-            else if (choice == 4)
-                break;
-        }
-    }
-
-    int userMenu() {
-        int choice = -1;
-        while (choice == -1) {
-            cout << "\nHello " << current_user.getName() << " | User View" << endl;
-            cout << "\nMenu: " << endl;
-            cout << '\t' <<"1: View Profile\n";
-            cout << '\t' <<"2: List & Select from My Reading History\n";
-            cout << '\t' <<"3: List & Select from Available Books\n";
-            cout << '\t' <<"4: Logout\n";
-
-            cout << "Enter number in range 1 - 4: ";
-            cin >> choice;
-
-            if (!(1 <= choice && choice <= 4)) {
-                cout << "Invalid choice. Try again\n";
-                choice = -1;	// loop keep working
-            }
-        }
-        return choice;
-    }
-
-};
 
 class Book {
 private:
@@ -166,12 +98,17 @@ private:
     const vector<string>& getContent() {
         return content;
     }
+    // returning content of specific page
+    const string& getContentByPage(const int page) {
+        return content[page];
+    }
 
 };
 
 class BooksManager {
 private:
     vector<Book> books;
+    map<string, int> sessions; // title to last page map
 public:
     // Default constructors with fake database
     BooksManager() {
@@ -229,6 +166,64 @@ public:
         a.setContent(v);
         books.push_back(a);
     }
+
+    // show all available books and pick one to read
+    // store the last page of the book in the map
+    void pickBook() {
+        cout << "\nOur current book collection: " << endl;
+        for (int i = 0; i < books.size(); ++i) {
+            cout << "\t" << i + 1 << ": " << books[i].getTitle() << endl;
+        }
+        int choice;
+        cout << "\nEnter the number of the book you want to read: ";
+        cin >> choice;
+        if (choice > 0 && choice <= books.size()) {
+            beginSession(books[choice - 1]);
+        }
+        else {
+            cout << "Invalid choice. Try again\n";
+        }
+    }
+
+    // begin a session of reading a book
+    void beginSession(Book& book) {
+        string title = book.getTitle();
+        sessions[title] = 1;
+
+        int choice;
+        while (true) {
+            getPage(book, sessions[title]);
+            cout << "\nMenu: " << endl;
+            cout << '\t' <<"1: View Next Page\n";
+            cout << '\t' <<"2: View Previous Page\n";
+            cout << '\t' <<"3: Stop Reading\n";
+            cout << "Enter number in range 1 - 3: ";
+            cin >> choice;
+            if (!(1 <= choice && choice <= 3)) {
+                cout << "Invalid choice. Try again\n";
+                continue;
+            }
+            if (choice == 1) {
+                getPage(book, ++sessions[title]);
+            }
+            else if (choice == 2) {
+                getPage(book, --sessions[title]);
+            }
+            else if (choice == 3) {
+             // after breaking .. the last session will be stored in the sessions map
+             break;
+            }
+        }
+    }
+    void getPage(Book& book,int pagen) {
+        string title = book.getTitle();
+        cout << "You are now reading " << title << endl;
+
+        cout << "Current page: " << sessions[title] << "/" << book.getnPages() << endl;
+        cout << book.getContentByPage(sessions[title] - 1) << endl;
+    }
+
+
     /*
      * Searching and removing functions will be in use
      * ... but in the next version :)
@@ -267,6 +262,79 @@ public:
         }
     }
 };
+
+class UsersManager {
+private:
+    map<string, User> userName_userObj_map;
+    User current_user;
+    BooksManager booksManager;
+
+public:
+    // Default constructors with fake users for testing
+    UsersManager() {
+        userName_userObj_map["hany"] = User("Hany", "123", "test@mail", "hany");
+    }
+    // setter and getters
+    void setCurrentUser(const string& userName) {
+        current_user = userName_userObj_map[userName];
+    }
+    const User& getCurrentUser() const {
+        return current_user;
+    }
+    // return user by userName
+    const User& getUser(const string& userName) const {
+        return userName_userObj_map.at(userName);
+    }
+    // add user to the map
+    void addUser(const User& user) {
+        userName_userObj_map[user.getUserName()] = user;
+    }
+    // check if the user name is already exist in the map
+    bool isUserNameExist(const string& userName) {
+        return userName_userObj_map.find(userName) != userName_userObj_map.end();
+    }
+    // check if the user name and password are correct
+    bool isUserNameAndPasswordCorrect(const string& userName, const string& password) {
+        if (isUserNameExist(userName)) {
+            return userName_userObj_map[userName].getPassword() == password;
+        }
+        return false;
+    }
+    void accessSystem() {
+        while (true) {
+            int choice = userMenu();
+            if (choice == 1)
+                current_user.printInfo();
+            else if (choice == 3)
+                booksManager.pickBook();
+            else if (choice == 4)
+                break;
+        }
+    }
+
+    int userMenu() {
+        int choice = -1;
+        while (choice == -1) {
+            cout << "\nHello " << current_user.getName() << " | User View" << endl;
+            cout << "\nMenu: " << endl;
+            cout << '\t' <<"1: View Profile\n";
+            cout << '\t' <<"2: List & Select from My Reading History\n";
+            cout << '\t' <<"3: List & Select from Available Books\n";
+            cout << '\t' <<"4: Logout\n";
+
+            cout << "Enter number in range 1 - 4: ";
+            cin >> choice;
+
+            if (!(1 <= choice && choice <= 4)) {
+                cout << "Invalid choice. Try again\n";
+                choice = -1;	// loop keep working
+            }
+        }
+        return choice;
+    }
+
+};
+
 
 class Admin {
 private:
@@ -443,3 +511,7 @@ int main() {
     readerSystem.Run();
     return 0;
 }
+/*
+ * Admin : 3ein39 123
+ * User: hany 123
+ */
