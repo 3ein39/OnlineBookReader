@@ -3,6 +3,123 @@
 #include <vector>
 using namespace std;
 
+class User {
+private:
+    string name;
+    string password;
+    string email;
+    string userName;
+public:
+    // Default constructors
+    User() {}
+
+    User(const string& name, const string& password, const string& email, const string& userName) {
+        setName(name);
+        setPassword(password);
+        setEmail(email);
+        setUserName(userName);
+    }
+    void printInfo() {
+        cout << "Name: " << getName() << endl;
+        cout << "Email: " << getEmail() << endl;
+        cout << "user_name: " << getUserName() << endl;
+    }
+    // setter and getters
+    void setName(const string& name) {
+        this->name = name;
+    }
+    const string& getName() const {
+        return name;
+    }
+    void setPassword(const string& password) {
+        this->password = password;
+    }
+    const string& getPassword() const {
+        return password;
+    }
+    void setEmail(const string& email) {
+        this->email = email;
+    }
+    const string& getEmail() const {
+        return email;
+    }
+    void setUserName(const string& userName) {
+        this->userName = userName;
+    }
+    const string& getUserName() const {
+        return userName;
+    }
+};
+
+class UsersManager {
+private:
+    map<string, User> userName_userObj_map;
+    User current_user;
+
+public:
+    // Default constructors with fake users for testing
+    UsersManager() {
+        userName_userObj_map["hany"] = User("Hany", "123", "test@mail", "hany");
+    }
+    // setter and getters
+    void setCurrentUser(const string& userName) {
+        current_user = userName_userObj_map[userName];
+    }
+    const User& getCurrentUser() const {
+        return current_user;
+    }
+    // return user by userName
+    const User& getUser(const string& userName) const {
+        return userName_userObj_map.at(userName);
+    }
+    // add user to the map
+    void addUser(const User& user) {
+        userName_userObj_map[user.getUserName()] = user;
+    }
+    // check if the user name is already exist in the map
+    bool isUserNameExist(const string& userName) {
+        return userName_userObj_map.find(userName) != userName_userObj_map.end();
+    }
+    // check if the user name and password are correct
+    bool isUserNameAndPasswordCorrect(const string& userName, const string& password) {
+        if (isUserNameExist(userName)) {
+            return userName_userObj_map[userName].getPassword() == password;
+        }
+        return false;
+    }
+    void accessSystem() {
+        while (true) {
+            int choice = userMenu();
+            if (choice == 1)
+                current_user.printInfo();
+            else if (choice == 4)
+                break;
+        }
+    }
+
+    int userMenu() {
+        int choice = -1;
+        while (choice == -1) {
+            cout << "\nHello " << current_user.getName() << " | User View" << endl;
+            cout << "\nMenu: " << endl;
+            cout << '\t' <<"1: View Profile\n";
+            cout << '\t' <<"2: List & Select from My Reading History\n";
+            cout << '\t' <<"3: List & Select from Available Books\n";
+            cout << '\t' <<"4: Logout\n";
+
+            cout << "Enter number in range 1 - 4: ";
+            cin >> choice;
+
+            if (!(1 <= choice && choice <= 4)) {
+                cout << "Invalid choice. Try again\n";
+                choice = -1;	// loop keep working
+            }
+        }
+        return choice;
+    }
+
+};
+
 class Book {
 private:
     int isbn{};
@@ -265,6 +382,7 @@ public:
 
 class readerSystem {
 private:
+    UsersManager usersManager;
     AdminsManager adminsManager;
 
     void doLogin() {
@@ -277,6 +395,10 @@ private:
             cout << "Admin Login successful\n" << endl;
             adminsManager.setCurrentAdmin(user_name);
             adminsManager.accessSystem();
+        } else if (usersManager.isUserNameExist(user_name) && usersManager.getUser(user_name).getPassword() == password) {
+            cout << "User Login successful\n" << endl;
+            usersManager.setCurrentUser(user_name);
+            usersManager.accessSystem();
         } else {
             cout << "Login failed" << endl;
             doLogin();
