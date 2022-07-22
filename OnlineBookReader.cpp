@@ -223,6 +223,48 @@ public:
         cout << book.getContentByPage(sessions[title] - 1) << endl;
     }
 
+    void pickSession() {
+        cout << "\nyour current sessions: " << endl;
+        int i = 1;
+        for (auto it = sessions.begin(); it != sessions.end(); ++it, i++) {
+            cout << "\t"<< i << " " <<it->first <<
+            "Page: " << it->second << "/" << searchBookByTitle(it->first).getnPages() << endl;
+        }
+        cout << "Enter the number of the session you want to read: ";
+        int choice;
+        cin >> choice;
+
+        if (choice > 0 && choice <= sessions.size()) {
+            int &page = sessions[sessions.begin()->first];
+            Book book = searchBookByTitle(sessions.begin()->first);
+            while (true) {
+                getPage(book, page);
+                cout << "\nMenu: " << endl;
+                cout << '\t' <<"1: View Next Page\n";
+                cout << '\t' <<"2: View Previous Page\n";
+                cout << '\t' <<"3: Stop Reading\n";
+                cout << "Enter number in range 1 - 3: ";
+                cin >> choice;
+                if (!(1 <= choice && choice <= 3)) {
+                    cout << "Invalid choice. Try again\n";
+                    continue;
+                }
+                if (choice == 1) {
+                    getPage(book, ++page);
+                }
+                else if (choice == 2) {
+                    getPage(book, --page);
+                }
+                else if (choice == 3) {
+                    // after breaking .. the last session will be stored in the sessions map
+                    break;
+                }
+            }
+        }
+        else {
+            cout << "Invalid choice. Try again\n";
+        }
+    }
 
     /*
      * Searching and removing functions will be in use
@@ -305,6 +347,8 @@ public:
             int choice = userMenu();
             if (choice == 1)
                 current_user.printInfo();
+            else if (choice == 2)
+                booksManager.pickSession();
             else if (choice == 3)
                 booksManager.pickBook();
             else if (choice == 4)
