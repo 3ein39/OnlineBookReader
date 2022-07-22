@@ -3,6 +3,10 @@
 #include <vector>
 using namespace std;
 
+/*
+ * TODO Sign up not written
+ */
+
 class User {
 private:
     string name;
@@ -104,7 +108,6 @@ private:
     }
 
 };
-
 class BooksManager {
 private:
     vector<Book> books;
@@ -112,6 +115,10 @@ private:
 public:
     // Default constructors with fake database
     BooksManager() {
+
+    }
+    // Seeding fake data
+    void loadBooks() {
         vector<string> v(5);
         v[0] = "Chapter 1";
         v[1] = "Chapter 2";
@@ -304,12 +311,12 @@ public:
         }
     }
 };
+BooksManager booksManager;
 
 class UsersManager {
 private:
     map<string, User> userName_userObj_map;
     User current_user;
-    BooksManager booksManager;
 
 public:
     // Default constructors with fake users for testing
@@ -435,7 +442,6 @@ class AdminsManager {
 private:
     map<string, Admin> username_adminObj_map;
     Admin current_admin;
-    BooksManager booksManager;
 public:
     // Default constructor creates admin for simplicity
     AdminsManager() {
@@ -496,7 +502,6 @@ class readerSystem {
 private:
     UsersManager usersManager;
     AdminsManager adminsManager;
-
     void doLogin() {
         string user_name, password;
         cout << "Enter user name: ";
@@ -540,6 +545,7 @@ public:
     }
 
     void accessSystem() {
+        booksManager.loadBooks();
         while (true) {
             int choice = menu();
             if (choice == 1)
@@ -550,7 +556,6 @@ public:
 };
 
 int main() {
-
     readerSystem readerSystem;
     readerSystem.Run();
     return 0;
