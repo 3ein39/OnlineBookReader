@@ -521,6 +521,19 @@ private:
             doLogin();
         }
     }
+    void doSignup() {
+        // signup for a new user
+        string name, password, email, user_name;
+        cout << "Enter name: ";
+        cin >> name;
+        cout << "Enter password: ";
+        cin >> password;
+        cout << "Enter email: ";
+        cin >> email;
+        cout << "Enter user name: ";
+        cin >> user_name;
+        usersManager.addUser(User(name, password, email, user_name));
+    }
     int menu() {
         int choice = -1;
         while (choice == -1) {
@@ -550,6 +563,8 @@ public:
             int choice = menu();
             if (choice == 1)
                 doLogin();
+            else if (choice == 2)
+                doSignup();
         }
     }
 
